@@ -167,8 +167,6 @@ def get_target_info(target_all,SecondVocab,ThirdVocab):
     return chart1,chart2,chart3
 
 
-
-
 def compute_prop(pos, neg):
     p = pos / (pos + neg + 1e-5)
     n = neg / (pos + neg + 1e-5)
@@ -184,6 +182,15 @@ def get_text(input_path):
     f_text.close()
     return text
 
+def get_batch(text, batch_size):
+    if len(text) > batch_size:
+        batch_text = []
+        for i in range(0, len(text), batch_size):
+            batch_text.append(text[i:(i + batch_size)])
+        return batch_text
+
+    else:
+        return text
 
 def create_list(first_name):
     create = locals()

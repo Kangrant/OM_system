@@ -38,20 +38,16 @@ def decode(input_path):
     text = get_text(input_path)
     start_time = time.time()
 
-
-    # triple_info = t_triple.get_result()  # List<Dict>      [{text: str}
-    #                                                         # {aspect :[]},
-    #                                                         # {opinion:[]},
-    #                                                         # {triples:[(),()]}
-    #                                                         # {sen_polarity: str}]
-                                                              # {target:[(),()]}
-    #
+    batch_text = get_batch(text=text,batch_size=5)
 
 
 
-
-
-    triple_info = tripleModel(text)
+    triple_info = tripleModel(batch_text)  #List<Dict>    # [{text: str}
+    # {aspect :[]},
+    # {opinion:[]},
+    # {triples:[(),()]}
+    # {sen_polarity: str}]
+    # {target:[(),()]}
     end_time = time.time()
     print('cost time:%s '%(end_time-start_time))
 
@@ -66,17 +62,17 @@ def decode(input_path):
     print("Process target time:",str(e_time-s_time))
 
     result = ( {'text1': text_all,
-                         'text2': aspect_and_opinion,
-                         'text3': ao_pair,
-                         'text4': ao_tri,
-                         'chart1': chart1,
-                         'chart2': chart2,
-                         'chart3': chart3})
+                'text2': aspect_and_opinion,
+                'text3': ao_pair,
+                'text4': ao_tri,
+                'chart1': chart1,
+                'chart2': chart2,
+                'chart3': chart3})
     return result
 
 
 if __name__ == '__main__':
-    input_path = r'only_web/input.txt'
+    input_path = r'input.txt'
     res = decode(input_path)
     print(res)
 

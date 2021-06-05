@@ -8,3 +8,4 @@ opinion_web/__pycache__/
 MyOTE/modify_log
 MyOTE/state_dict/
 MyOTE/temp/model.bin
+.idea/
