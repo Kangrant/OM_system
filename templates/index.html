@@ -1,0 +1,631 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="author" content="order by dede58.com"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{% static 'img/logo.png'}"/>
+    <title>苏州大学意见挖掘系统</title>
+    <link href="{% static 'css/bootstrap.css'%}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/mmss.css'%}"/>
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css'%}"/>
+    <!--[if lt IE 9]>
+    <script src="{% static 'js/html5shiv.min.js'%}"></script>
+    <script src="{% static 'js/respond.min.js'%}"></script>
+    <![endif]-->
+</head>
+<body>
+<header>
+    <div class="container-fluid navbar-fixed-top bg-primary">
+        <ul class="nav navbar-nav  left">
+          <li class="text-white h4"> &nbsp;&nbsp;&nbsp; <span class="glyphicon glyphicon-leaf"></span> <strong>苏州大学意见挖掘系统</strong> </li>
+        </ul>
+    </div>
+</header>
+
+<section>
+    <div class="container-fluid">
+        <div class="row ">
+            <!--左侧导航开始-->
+            <div class="col-xs-2 bg-blue">
+                <br/>
+                <div class="panel-group sidebar-menu" id="accordion" aria-multiselectable="true">
+                    <div class="panel panel-default menu-first menu-first-active">
+                        <a data-toggle="collapse" data-parent="#accordion" href="index.html" aria-expanded="true"
+                           aria-controls="collapseOne">
+                            <i class="icon-home icon-large"></i> 主页
+                        </a>
+                    </div>
+                    <div class="panel panel-default menu-first"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne"> <em class="icon-user-md icon-large">文件模式</em></a></a>
+
+                        <div id="collapseOne" class="panel-collapse collapse " >
+                            <ul class="nav nav-list menu-second">
+                              <li><a href="#" id='button1'><em class="icon-user"></em> 上传文本</a></li>
+                              <li><a href="#" id='button2'><em class="icon-edit"></em> 要素抽取</a></li>
+                                <li><a href="#" id='button3'><em class="icon-trash"></em> 关系识别</a></li>
+                                <li><a href="#" id='button4'><em class="icon-list"></em> 极性分类</a></li>
+								<li><a href="#" id='button5'><em class="icon-list"></em> 方面信息</a></li>
+                            </ul>
+                        </div>
+                  </div>
+                    <div class="panel panel-default menu-first"><a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><em class="icon-book icon-large">手动模式</em></a></a>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <ul class="nav nav-list menu-second">
+                             <li><a href="#"><em class="icon-user"></em> 输入文本</a></li>
+                              <li><a href="#"><em class="icon-edit"></em> 要素抽取</a></li>
+                                <li><a href="#"><em class="icon-trash"></em> 关系识别</a></li>
+                                <li><a href="#"><em class="icon-list"></em> 极性分类</a></li>
+								<li><a href="#"><em class="icon-list"></em> 方面信息</a></li>
+                          </ul>
+                      </div>
+                  </div>
+                    <div class="panel panel-default menu-first"><a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree"> <em class="icon-book icon-large">爬虫模式</em></a></a>
+
+                        <div id="collapseThree" class="panel-collapse collapse">
+                            <ul class="nav nav-list menu-second">
+                                <li><a href="#"><i class="icon-user"></i> 子选项1</a></li>
+                                <li><a href="#"><i class="icon-edit"></i> 子选项2</a></li>
+                                <li><a href="#"><i class="icon-trash"></i> 子选项3</a></li>
+                                <li><a href="#"><i class="icon-list"></i> 子选项4</a></li>
+                            </ul>
+                      </div>
+                  </div>
+                </div>
+            </div>
+            <!--左侧导航结束-->
+            <!----------------------------------------------------------------------------------------------------->
+            <!--右侧内容开始-->
+            <div class="col-xs-10">
+                <br/>
+<!--                <ol class="breadcrumb">-->
+<!--                  <li class="active"><span class="glyphicon glyphicon-home"></span> 系统首页 </li>-->
+<!--                </ol>-->
+                <h1 class="text-center text-white">意见挖掘系统</h1>
+                <br/>
+                <br/>
+                <!----------------------------------------------------------    ------------------------------------------->
+				<!--开始修改-->
+				
+				<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    				<div class="collapse navbar-collapse" id="navbarNavDropdown">
+        				<ul class="nav nav-pills">
+            				<li class="nav-item">
+                				<input class="nav-item" href="#" id="fileUpload" type="file" name="fileUpload" style="font-size:24px">
+            				</li>
+            				<li class="nav-item ">
+                				<a class="nav-item " href="#" id="upload" style="font-size:24px">上传文本</a>
+            				</li>
+            				<li class="nav-item">
+                				<a class="nav-item " href="#" id="inference" style="font-size:24px">开始推理</a>
+            				</li>
+            				<li class="nav-item">
+                				<a class="nav-item " href="#" id="home" style="font-size:24px">获取结果</a>
+            				</li>
+        				</ul>
+    				</div>
+				</nav>
+				<br/>
+                <br/>
+				<div class="overflow-auto flex-fill" style="height: 300px;margin: 10px;width: 90%;">
+                <ul class="list-group" id='text1'>
+                    <li class="list-group-item">没有数据</li>
+                </ul>
+                <ul class="list-group" id='text2'>
+                    <li class="list-group-item">没有数据</li>
+                </ul>
+                <ul class="list-group" id='text3'>
+                    <li class="list-group-item">没有数据</li>
+                </ul>
+                <ul class="list-group" id='text4'>
+                    <li class="list-group-item">没有数据</li>
+                </ul>
+            </div>
+			</div>
+            <!--右侧内容结束-->
+        </div>
+    </div>
+</section>
+
+<footer class="bg-primary navbar-fixed-bottom">
+  <p class="text-center text-white">苏州大学</p>
+</footer>
+
+<script src="{% static 'js/jquery-1.11.3.js'%}"></script>
+<!--<script src="{% static 'js/bootstrap.js'%}"></script>-->
+<script type="text/javascript">
+
+//	(function () {
+//        var s = document.createElement("script");
+//        s.onload = function () {
+//            bootlint.showLintReportForCurrentDocument([]);
+//        };
+//        s.src = "js/bootlint.js";
+//        document.body.appendChild(s)
+//    })();
+
+    $(function () {
+        $('dt').click(function () {
+            $(this).parent().find('dd').show().end().siblings().find('dd').hide();
+        });
+    });
+    var home = document.getElementById("home");
+    var inference = document.getElementById("inference");
+    var upload = document.getElementById("upload");
+
+    var render = function (datalist) {
+        text1.innerHTML = "";
+        text2.innerHTML = "";
+        text3.innerHTML = "";
+        text4.innerHTML = "";
+        for (i = 0; i < datalist['text1'].length; i++) {
+            var para = document.createElement('li');//创建新的p标签
+            var node = document.createTextNode(datalist['text1'][i]);//创建一个文本节点
+            para.appendChild(node);//向p追加此文本节点
+            para.className = "list-group-item";//向p追加className
+            text1.appendChild(para);//向已有元素添加新元素（默认将para插入到element的最后）
+        }
+        for (i = 0; i < datalist['text2'].length; i++) {
+            var para = document.createElement('li');//创建新的p标签
+            var node = document.createTextNode(datalist['text2'][i]);//创建一个文本节点
+            para.appendChild(node);//向p追加此文本节点
+            para.className = "list-group-item";//向p追加className
+            text2.appendChild(para);//向已有元素添加新元素（默认将para插入到element的最后）
+        }
+        for (i = 0; i < datalist['text3'].length; i++) {
+            var para = document.createElement('li');//创建新的p标签
+            var node = document.createTextNode(datalist['text3'][i]);//创建一个文本节点
+            para.appendChild(node);//向p追加此文本节点
+            para.className = "list-group-item";//向p追加className
+            text3.appendChild(para);//向已有元素添加新元素（默认将para插入到element的最后）
+        }
+        for (i = 0; i < datalist['text4'].length; i++) {
+            var para = document.createElement('li');//创建新的p标签
+            var node = document.createTextNode(datalist['text4'][i]);//创建一个文本节点
+            para.appendChild(node);//向p追加此文本节点
+            para.className = "list-group-item";//向p追加className
+            text4.appendChild(para);//向已有元素添加新元素（默认将para插入到element的最后）
+        }
+
+        var echarts0 = echarts.init(document.getElementById('echarts-dataset0'), 'walden');
+        option0 = {
+            legend: {
+                data: ['positive', 'negative'],
+                left: 10,
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                },
+                formatter: '{b0}<br/>{a0}: {c0}%<br />{a1}: {c1}%<br />'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    splitLine: {show: false},
+                    type: 'value',
+                    inverse: true,
+                    axisTick: {
+                        show: false
+                    },
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'category',
+                    axisTick: {
+                        show: false
+                    },
+                    data: ['总体分析'],
+                    axisLabel: {
+                        show: false, formatter: '{value}%'
+                    }
+                }
+            ],
+            series: [
+
+                {
+                    name: 'positive',
+                    type: 'bar',
+                    stack: '总量',
+                    label: {
+                        show: true,
+                        formatter: function (params) { //标签内容
+                            return params.data + '%'//,position: 'right'
+                        }
+                    },
+                    data: [Math.round(datalist.chart1['positive'] * 10000) / 100]
+                },
+                {
+                    name: 'negative',
+                    type: 'bar',
+                    stack: '总量',
+                    itemStyle: {
+                        normal: {
+                            color: '#1a6Dff'
+                        }
+                    },
+                    label: {
+                        show: true,
+                        formatter: function (params) { //标签内容
+                            return params.data + '%'//,position: 'right'
+                        }
+                    },
+                    data: [-Math.round(datalist.chart1['negative'] * 10000) / 100]
+                }
+            ]
+        };
+        echarts0.setOption(option0);
+        var echartsMap = echarts.init(document.getElementById('echarts-dataset1'), 'walden');
+
+        function generate_data() {
+
+            var xAxisData = [];
+            var data1 = [];
+            var data2 = [];
+
+
+            $.each(datalist.chart2, function (k, v) {
+                data1.push(v.positive.toFixed(2));
+                data2.push((-v.negative).toFixed(2));
+                xAxisData.push(k);
+            })
+
+            var emphasisStyle = {
+                itemStyle: {
+                    barBorderWidth: 1,
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 0,
+                    shadowColor: 'rgba(0,0,0,0.5)'
+                }
+            };
+
+            optionDataset = {
+                title: {
+                    text: '一级指标',
+                    x: 'center',
+                    y: 'top',
+                    textAlign: 'left'
+                },
+                brush: {
+                    toolbox: ['rect', 'polygon', 'lineX', 'lineY', 'keep', 'clear'],
+                    xAxisIndex: 0
+                },
+                toolbox: {
+                    feature: {
+                        magicType: {
+                            type: ['stack', 'tiled']
+                        },
+                        dataView: {}
+                    },
+                    show: false
+                },
+                tooltip: {},
+                xAxis: {
+                    data: xAxisData,
+                    axisLine: {onZero: true},
+                    splitLine: {show: false},
+                    splitArea: {show: false},
+                    axisLabel: {       //x轴标签
+                        interval: 0,
+                        //  rotate:40
+                    }
+                },
+                yAxis: {
+                    inverse: false,
+                    splitArea: {show: false},
+                    max: 1,
+                    min: -1,
+                    axisTick: {       //y轴刻度线
+                        "show": false
+                    },
+                    axisLabel: {       //y轴标签
+                        "show": false,
+                    }
+                },
+                grid: {
+                    left: 0
+                },
+                series: [
+                    {
+                        name: 'positive',
+                        type: 'bar',
+                        stack: 'one',
+                        emphasis: emphasisStyle,
+                        data: data1,
+                        barWidth: 33
+                    },
+                    {
+                        name: 'negative',
+                        type: 'bar',
+                        stack: 'one',
+                        emphasis: emphasisStyle,
+                        data: data2,
+                        barWidth: 33,
+                        itemStyle: {
+                            normal: {
+                                color: '#1a6Dff'
+                            }
+                        }
+                    }
+                ]
+            };
+            if (xAxisData.length >= 4) {
+                optionDataset.xAxis.axisLabel.interval = 0;
+                optionDataset.xAxis.axisLabel.rotate = 40;
+            }
+            return optionDataset;
+        }
+
+        optionMap = generate_data()
+        echartsMap.setOption(optionMap);
+
+
+        // echarts 窗口缩放自适应
+        window.onresize = function () {
+            echartsMap.resize();
+        }
+
+        echartsMap.getZr().off('click')
+        echartsMap.getZr().on('click', params => {
+            let pointInPixel = [params.offsetX, params.offsetY]
+            if (echartsMap.containPixel('grid', pointInPixel)) {
+                let xIndex = echartsMap.convertFromPixel({seriesIndex: 0}, [params.offsetX, params.offsetY])[0]
+
+                var echartsMap2 = echarts.init(document.getElementById('echarts-dataset2'), 'walden');
+
+                function generate_data() {
+
+                    var xAxisData = [];
+                    var data1 = [];
+                    var data2 = [];
+                    var chart_title = optionMap.xAxis.data[xIndex];
+
+                    $.each(datalist.chart3[optionMap.xAxis.data[xIndex]], function (k, v) {
+                        data1.push(v.positive.toFixed(2));
+                        data2.push((-v.negative).toFixed(2));
+                        xAxisData.push(k);
+                    })
+
+                    var emphasisStyle = {
+                        itemStyle: {
+                            barBorderWidth: 1,
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowOffsetY: 0,
+                            shadowColor: 'rgba(0,0,0,0.5)'
+                        }
+                    };
+
+                    optionDataset = {
+                        title: {
+                            text: chart_title,//'二级指标'
+                            x: 'center',
+                            y: 'top',
+                            textAlign: 'left'
+                        },
+                        brush: {
+                            toolbox: ['rect', 'polygon', 'lineX', 'lineY', 'keep', 'clear'],
+                            xAxisIndex: 0
+                        },
+                        toolbox: {
+                            feature: {
+                                magicType: {
+                                    type: ['stack', 'tiled']
+                                },
+                                dataView: {}
+                            },
+                            show: false
+                        },
+                        tooltip: {},
+                        xAxis: {
+                            data: xAxisData,
+                            axisLine: {onZero: true},
+                            splitLine: {show: false},
+                            splitArea: {show: false},
+                            axisLabel: {       //x轴标签
+                                interval: 0,
+                                //  rotate:40
+                            }
+                        },
+                        yAxis: {
+                            inverse: false,
+                            splitArea: {show: false},
+                            max: 1,
+                            min: -1,
+                            axisTick: {       //y轴刻度线
+                                "show": false
+                            },
+                            axisLabel: {       //y轴标签
+                                "show": false,
+                            }
+                        },
+                        grid: {
+                            left: 0
+                        },
+                        series: [
+                            {
+                                name: 'positive',
+                                type: 'bar',
+                                stack: 'one',
+                                emphasis: emphasisStyle,
+                                data: data1,
+                                barWidth: 33
+                            },
+                            {
+                                name: 'negative',
+                                type: 'bar',
+                                stack: 'one',
+                                emphasis: emphasisStyle,
+                                data: data2,
+                                barWidth: 33,
+                                itemStyle: {
+                                    normal: {
+                                        color: '#1a6Dff'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    if (xAxisData.length >= 4) {
+                        optionDataset.xAxis.axisLabel.interval = 0;
+                        optionDataset.xAxis.axisLabel.rotate = 40;
+                    }
+                    return optionDataset;
+                }
+
+                optionMap2 = generate_data()
+                echartsMap2.setOption(optionMap2, true);
+                window.onresize = function () {
+                    echartsMap2.resize();
+                }
+                echartsMap2.getZr().off('click');
+                echartsMap2.getZr().on('click', params => {
+                    let pointInPixel = [params.offsetX, params.offsetY]
+                    if (echartsMap2.containPixel('grid', pointInPixel)) {
+                        let xIndex = echartsMap2.convertFromPixel({seriesIndex: 0}, [params.offsetX, params.offsetY])[0]
+
+                        evaluate = datalist.chart3[optionMap2.title.text][optionMap2.xAxis.data[xIndex]]
+                        text5.innerHTML = "";
+                        text6.innerHTML = "";
+                        for (i = 0; i < evaluate['positive_instances'].length; i++) {
+                            var para = document.createElement('li');//创建新的p标签
+                            var node = document.createTextNode(evaluate['positive_instances'][i]);//创建一个文本节点
+                            para.appendChild(node);//向p追加此文本节点
+                            para.className = "list-group-item";//向p追加className
+                            text5.appendChild(para);//向已有元素添加新元素（默认将para插入到element的最后）
+                        }
+                        for (i = 0; i < evaluate['negative_instances'].length; i++) {
+                            var para = document.createElement('li');//创建新的p标签
+                            var node = document.createTextNode(evaluate['negative_instances'][i]);//创建一个文本节点
+                            para.appendChild(node);//向p追加此文本节点
+                            para.className = "list-group-item";//向p追加className
+                            text6.appendChild(para);//向已有元素添加新元素（默认将para插入到element的最后）
+                        }
+
+                    }
+
+                })//end chartclick
+            }
+
+        })//end chartclick
+    }
+
+    home.onclick = function () {
+        var data = $.ajax({url: "/mine", async: false});
+        var datalist = JSON.parse(data.responseText);
+
+        render(datalist)
+
+    }//end homeclick
+
+    inference.onclick = function () {
+        var data = $.ajax({url: "/inference", async: false});
+        var tip = JSON.parse(data.responseText);
+
+        console.log(tip)
+
+    }
+
+    // window.onload = function bbb() {
+    //     var data = $.ajax({url: "/sample", async: false});
+    //     var datalist = JSON.parse(data.responseText);
+    //
+    //     render(datalist)
+    // }
+
+    var text1 = document.getElementById("text1");
+    var text2 = document.getElementById("text2");
+    var text3 = document.getElementById("text3");
+    var text4 = document.getElementById("text4");
+    var text5 = document.getElementById("text5");
+    var text6 = document.getElementById("text6");
+    var button1 = document.getElementById("button1");
+    var button2 = document.getElementById("button2");
+    var button3 = document.getElementById("button3");
+    var button4 = document.getElementById("button4");
+
+    button1.onclick = function () {
+        text1.style.display = "block";
+        text2.style.display = "none";
+        text3.style.display = "none";
+        text4.style.display = "none";
+    }
+
+    button2.onclick = function () {
+        text1.style.display = "none";
+        text2.style.display = "block";
+        text3.style.display = "none";
+        text4.style.display = "none";
+    }
+
+    button3.onclick = function () {
+        text1.style.display = "none";
+        text2.style.display = "none";
+        text3.style.display = "block";
+        text4.style.display = "none";
+    }
+
+    button4.onclick = function () {
+        text1.style.display = "none";
+        text2.style.display = "none";
+        text3.style.display = "none";
+        text4.style.display = "block";
+    }
+
+    text2.style.display = "none";
+    text3.style.display = "none";
+    text4.style.display = "none";
+
+
+    function uploadFile() {
+        var fd = new FormData();
+        fd.append("fileToUpload", document.getElementById('fileUpload').files[0]);
+        var xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener("progress", uploadProgress, false);
+        xhr.addEventListener("load", uploadComplete, false);
+        xhr.addEventListener("error", uploadFailed, false);
+        xhr.addEventListener("abort", uploadCanceled, false);
+        xhr.open("POST", "/upload/"); //修改成自己的接口
+        xhr.send(fd);
+    }
+
+    function uploadProgress(evt) {
+        if (evt.lengthComputable) {
+            var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+            upload.innerHTML = percentComplete.toString() + '%';
+        } else {
+            upload.innerHTML = '上传失败';
+        }
+    }
+
+    upload.onclick = uploadFile;
+
+    function uploadComplete(evt) {
+        /* 服务器端返回响应时候触发event事件*/
+        upload.innerHTML = '上传成功';
+    }
+
+    function uploadFailed(evt) {
+        alert("上传失败");
+    }
+
+    function uploadCanceled(evt) {
+        alert("上传取消");
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+mining/__pycache__/
+MyOTE/__pycache__/
+MyOTE/bert-base-chinese/
+MyOTE/log/
+MyOTE/models/__pycache__/
+MyOTE/layers/__pycache__/
+opinion_web/__pycache__/
+MyOTE/modify_log
+MyOTE/state_dict/
+MyOTE/temp/model.bin
