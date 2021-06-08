@@ -14,24 +14,26 @@ from transformers import BertTokenizer
 class Inferer:
     """A simple inference example"""
 
-    def __init__(self, opt):
+    def __init__(self, opt,model,tokenizer):
         self.opt = opt
 
-        absa_data_reader = ABSADataReader(data_dir=opt.data_dir)
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
-        self.idx2tag, self.idx2polarity,self.idx2target = absa_data_reader.reverse_tag_map, \
-                                                          absa_data_reader.reverse_polarity_map, \
-                                                          absa_data_reader.reverse_target_map
-        self.model = opt.model_class(
-                                    opt=opt,
-                                    idx2tag=self.idx2tag,
-                                    idx2polarity=self.idx2polarity,
-                                    idx2target = self.idx2target
-                                    ).to(opt.device)
-        print('loading model {0} ...'.format(opt.model_name))
-        self.model.load_state_dict(torch.load(opt.state_dict_path, map_location=lambda storage, loc: storage))
-        # switch model to evaluation mode
-        self.model.eval()
+        # absa_data_reader = ABSADataReader(data_dir=opt.data_dir)
+        #self.tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
+        self.tokenizer = tokenizer
+        # self.idx2tag, self.idx2polarity,self.idx2target = absa_data_reader.reverse_tag_map, \
+        #                                                   absa_data_reader.reverse_polarity_map, \
+        #                                                   absa_data_reader.reverse_target_map
+        # self.model = opt.model_class(
+        #                             opt=opt,
+        #                             idx2tag=self.idx2tag,
+        #                             idx2polarity=self.idx2polarity,
+        #                             idx2target = self.idx2target
+        #                             ).to(opt.device)
+        # print('loading model {0} ...'.format(opt.model_name))
+        # self.model.load_state_dict(torch.load(opt.state_dict_path, map_location=lambda storage, loc: storage))
+        # # switch model to evaluation mode
+        # self.model.eval()
+        self.model = model
         torch.autograd.set_grad_enabled(False)
 
     def evaluate(self, text):
@@ -56,22 +58,14 @@ class Inferer:
         return [t_ap_spans_pred, t_op_spans_pred, t_triplets_pred, t_senPolarity_pred,t_target_pred]
 
 
-def get_text(input_path):
-    text = []
-    f_text = open(input_path, 'r', encoding='utf-8')
-    lines = f_text.readlines()
-    for line in lines:
-        text.append(line.strip())
-    f_text.close()
-    return text
 
 
 if __name__ == '__main__':
     dataset = 'hotel'
     # set your trained models here
     model_state_dict_paths = {
-        #'ote': 'state_dict/ote_' + dataset + '.pkl',
-        'ote': 'state_dict/ote_' + 'test' + '.pkl',
+        'ote': 'state_dict/ote_' + dataset + '.pkl',
+        # 'ote': 'state_dict/ote_' + 'test' + '.pkl',
     }
     model_classes = {
         'ote': OTE,

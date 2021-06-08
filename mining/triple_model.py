@@ -3,9 +3,7 @@ from only_web.MyOTE.infer import Inferer
 from only_web.MyOTE.models.ote import OTE
 import time
 
-
-def tripleModel(text):
-    start_time = time.time()
+def get_opt():
 
     dataset = 'hotel'
     # set your trained models here
@@ -30,10 +28,8 @@ def tripleModel(text):
         'hotel': 'hotelDatasets/hotel'
     }
 
-
     class Option(object):
         pass
-
 
     opt = Option()
     opt.dataset = dataset
@@ -50,10 +46,15 @@ def tripleModel(text):
     opt.data_dir = data_dirs[opt.dataset]
     opt.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    inf = Inferer(opt)
+    return opt
+
+def tripleModel(text,model,tokenizer):
+
+    opt = get_opt()
+
+    inf = Inferer(opt,model,tokenizer)
 
     polarity_map = {0: 'N', 1: 'NEU', 2: 'NEG', 3: 'POS'}
-
 
     #text = ['朋友一行合肥打球,选择这家酒店,房间干净整洁,前台小妹妹很热情,退房时因天气热,还送了瓶水给我,感觉很好,下次有机会去,还会住这家酒店']
 
@@ -64,7 +65,7 @@ def tripleModel(text):
         pred_out_all.append(pred_out)
     en_time = time.time()
 
-
+    s_time = time.time()
     triple_info = []
     # aspect_all, opinion_all = [], []
     for j in range(len(pred_out_all)):
@@ -124,11 +125,9 @@ def tripleModel(text):
 
             triple_info.append(info)
 
+    model_end_time = time.time()
 
-    end_time = time.time()
-    print("triple_all time:"+str(end_time-start_time))
-    print("triple_model time:"+str(en_time-st_time))
+    print("triple_model time: %.3f" % (en_time-st_time))
+    print("triple_precess pred out time: %.3f" % (model_end_time-s_time))
     return triple_info
 
-if __name__ == '__main__':
-    tripleModel('')
