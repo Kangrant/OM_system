@@ -9,3 +9,7 @@ MyOTE/modify_log
 MyOTE/state_dict/
 MyOTE/temp/model.bin
 .idea/
+cluster/text_analysis_tools/api/__pycache__/
+cluster/text_analysis_tools/__pycache__/
+cluster/__pycache__/
+cluster/text_analysis_tools/api/text_cluster/__pycache__/

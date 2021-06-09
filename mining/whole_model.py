@@ -9,12 +9,15 @@ import json
 import threading
 import torch
 from transformers import BertTokenizer
+import numpy as np
+
+np.seterr(divide='ignore',invalid='ignore')
 # triple_info = [{'text': '我是中国人','aspect':['我','中国人'],'opinion':['我','是中国人'],'triples':[('我','33','POS'),('你','吗','POS')],'sen_polarity':'POS'},
 #                {'text': '我是中国人','aspect':['我'],'opinion':['是中国人'],'triples':[('他','22','POS')],'sen_polarity':'POS'}]
 #
 # target_info = [[('我','24','国籍','人种'),('你','24','国籍','人种')],[('他','45','a','人asfa')]]
 
-global model,tokenizer
+
 
 class MyThread(threading.Thread):
 
@@ -94,7 +97,7 @@ def decode(input_path):
 
 
 if __name__ == '__main__':
-    input_path = r'input.txt'
+    input_path = r'input_100.txt'
     res = decode(input_path)
     print(res)
 
