@@ -242,14 +242,15 @@ def get_text(input_path):
 
 
 def get_batch(text, batch_size):
+    batch_text = []
+
     if len(text) > batch_size:
-        batch_text = []
         for i in range(0, len(text), batch_size):
             batch_text.append(text[i:(i + batch_size)])
-        return batch_text
 
     else:
-        return text
+        batch_text.append(text)
+    return batch_text
 
 
 def dbscan_cluster(data_path, eps=0.005, min_samples=0, fig=False):
