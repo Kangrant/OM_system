@@ -4,10 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from only_web.MyOTE.layers.dynamic_rnn import DynamicRNN
-from only_web.MyOTE.tag_utils import bio2bieos, bieos2span, find_span_with_end
-
+from only_web.MyOTE.tag_utils import  bio2bieos,bieos2span, find_span_with_end,bieos2span_express
 from transformers import BertModel, BertConfig
 
 
@@ -47,35 +45,44 @@ class Biaffine(nn.Module):
 
 
 class OTE(nn.Module):
-    # authorized_unexpected_keys = [r"encoder"]
     authorized_unexpected_keys = [r"pooler"]
 
-    def __init__(self, opt, idx2tag, idx2polarity,idx2target):
+    def __init__(self,embedding_matrix ,opt, idx2tag, idx2polarity,idx2target,idx2express):
         super(OTE, self).__init__()
         self.opt = opt
         self.idx2tag = idx2tag
         self.tag_dim = len(self.idx2tag)
         self.idx2polarity = idx2polarity
+        self.idx2express = idx2express
         self.idx2target = idx2target
         self.target_dim = len(self.idx2target)
-        self.config = BertConfig.from_pretrained('./bert-base-chinese')
+        self.express_dim = len(self.idx2express)
+        if embedding_matrix.shape[0] != 0:
+            self.embed = nn.Embedding.from_pretrained(torch.tensor(embedding_matrix, dtype=torch.float))
+            self.embed_dropout = nn.Dropout(0.5)
+            self.lstm = DynamicRNN(opt.embed_dim, opt.hidden_dim, batch_first=True, bidirectional=True)
 
-        self.bert = BertModel.from_pretrained('./bert-base-chinese', config=self.config, add_pooling_layer=False)
+            self.ap_fc = nn.Linear(2 * opt.hidden_dim, 200)
+            self.op_fc = nn.Linear(2 * opt.hidden_dim, 200)
+            self.express_fc = nn.Linear(2 * opt.hidden_dim,200)
+            self.sen_polarity_fc = nn.Linear(2 * opt.hidden_dim,opt.polarities_dim)
+        else:
+            self.config = BertConfig.from_pretrained('./bert-base-chinese')
+            self.bert = BertModel.from_pretrained('./bert-base-chinese', config=self.config, add_pooling_layer=False)
 
-        self.embed_dropout = nn.Dropout(0.5)
-
-        self.ap_fc = nn.Linear(self.config.hidden_size, 200)
-        self.op_fc = nn.Linear(self.config.hidden_size, 200)
+            self.ap_fc = nn.Linear(self.config.hidden_size, 200)
+            self.op_fc = nn.Linear(self.config.hidden_size, 200)
+            self.express_fc = nn.Linear(self.config.hidden_size,200)
+            self.sen_polarity_fc = nn.Linear(self.config.hidden_size,opt.polarities_dim)
 
         self.triplet_biaffine = Biaffine(opt, 100, 100, opt.polarities_dim, bias=(True, False))
         self.target_biaffine = Biaffine(opt, 100, 100, self.target_dim, bias=(True, False))
         self.ap_tag_fc = nn.Linear(100, self.tag_dim)
         self.op_tag_fc = nn.Linear(100, self.tag_dim)
-
-        self.sen_polarity_fc = nn.Linear(self.config.hidden_size,opt.polarities_dim)
+        self.express_tag_fc = nn.Linear(200,self.express_dim)
     def calc_loss(self, outputs, targets):
-        ap_out, op_out, triplet_out, sen_polarity_out,target_out= outputs
-        ap_tag, op_tag, triplet, mask,sentece_polarity_tag,target_gold = targets
+        ap_out, op_out, triplet_out, sen_polarity_out,target_out,express_out= outputs
+        ap_tag, op_tag, triplet, mask,sentece_polarity_tag,target_gold , express_label= targets
         # tag loss
         ap_tag_loss = F.cross_entropy(ap_out.flatten(0, 1), ap_tag.flatten(0, 1), reduction='none',
                                       ignore_index=-100)  # [batch * seq_len]
@@ -95,20 +102,29 @@ class OTE(nn.Module):
 
         sen_polarity_loss = F.cross_entropy(sen_polarity_out,sentece_polarity_tag,reduction='mean')
 
-        return tag_loss + sentiment_loss + sen_polarity_loss + target_loss
+        express_loss = F.cross_entropy(express_out.flatten(0, 1),express_label.flatten(0, 1),reduction='none')
+        express_loss = express_loss.masked_select(mask.flatten(0, 1)).sum() / mask.sum()
+
+        return tag_loss + sentiment_loss + sen_polarity_loss + target_loss + express_loss
 
 
-    def forward(self, inputs):
+    def forward(self, inputs,opt):
         text_indices, text_mask = inputs  # [batch_size,max_seq_len]
         text_len = torch.sum(text_mask, dim=-1)
+        if opt.useBert:
+            # output: (last_hidden_state,pooler_output)
+            # last_hidden_state:[batch,seq_len,768]    pooler_output:[batch,768]
+            output = self.bert(input_ids=text_indices, attention_mask=text_mask)
+            out = output[0]  # [batch,seq_len,768]
+        else:
+            embed = self.embed(text_indices) #[batch_size,max_seq_len,embedding_dim]
+            embed = self.embed_dropout(embed)
+            out, (_, _) = self.lstm(embed, text_len) #out->[batch,max_seq_len,hidden_size * num_directions]
 
-        # output: (last_hidden_state,pooler_output)
-        # last_hidden_state:[batch,seq_len,768]    pooler_output:[batch,768]
-        output = self.bert(input_ids=text_indices, attention_mask=text_mask)
-
-        out = output[0]  # [batch,seq_len,768]
         ap_rep = F.relu(self.ap_fc(out))  # [batch,seq_len,200]
         op_rep = F.relu(self.op_fc(out))  # [batch,seq_len,200]
+        express_rep = F.relu(self.express_fc(out))
+
         ap_node, ap_rep = torch.chunk(ap_rep, 2, dim=2)  # 分块 与cat操作相反
         op_node, op_rep = torch.chunk(op_rep, 2, dim=2)  ##[batch,max_seq_len,100]
 
@@ -123,28 +139,33 @@ class OTE(nn.Module):
         #FC [batch,768]-> [batch,polarity_dim]
         sen_polarity_out = self.sen_polarity_fc(sen_polarity_rep)
 
-        return [ap_out, op_out, triplet_out,sen_polarity_out,target_out]
+        express_out = self.express_tag_fc(express_rep)
+
+        return [ap_out, op_out, triplet_out,sen_polarity_out,target_out,express_out]
 
     def inference(self, inputs, text_indices, text_mask):
         text_len = torch.sum(text_mask, dim=-1)#[batch_size]
-
-
-        ap_out, op_out, triplet_out, sen_polarity_out,target_out= inputs
+        ap_out, op_out, triplet_out, sen_polarity_out,target_out,express_out= inputs
 
         batch_size = text_len.size(0)
+
         ap_tags = [[] for _ in range(batch_size)]
         op_tags = [[] for _ in range(batch_size)]
+        express_tags = [[] for _ in range(batch_size)]
         for b in range(batch_size):
             for i in range(text_len[b]):
                 ap_tags[b].append(ap_out[b, i, :].argmax(0).item())
         for b in range(batch_size):
             for i in range(text_len[b]):
                 op_tags[b].append(op_out[b, i, :].argmax(0).item())
+        for b in range(batch_size):
+            for i in range(text_len[b]):
+                express_tags[b].append(express_out[b, i, :].argmax(0).item())
 
         text_indices = text_indices.cpu().numpy().tolist()
         ap_spans = self.aspect_decode(text_indices, ap_tags, self.idx2tag)
         op_spans = self.opinion_decode(text_indices, op_tags, self.idx2tag)
-
+        express_spans = self.express_decode(text_indices,express_tags,self.idx2express)
 
         mat_mask = (text_mask.unsqueeze(2) * text_mask.unsqueeze(1)).unsqueeze(3).expand(
             -1, -1, -1, self.opt.polarities_dim)  # batch x seq x seq x polarity
@@ -170,7 +191,7 @@ class OTE(nn.Module):
         sen_polarity_tags= sen_polarity_out.argmax(1)
         #sen_polarity_tags = self.sen_polarity_decode(sen_polarity_ids,self.idx2polarity)
 
-        return [ap_spans, op_spans, triplets, sen_polarity_tags,target]
+        return [ap_spans, op_spans, triplets, sen_polarity_tags,target,express_spans]
 
     @staticmethod
     def aspect_decode(text_indices, tags, idx2tag):
@@ -232,3 +253,17 @@ class OTE(nn.Module):
             target = (ap_beg, ap_end,  po)
             result[b].append(target)
         return result
+
+    @staticmethod
+    def express_decode(text_indices, tags, idx2tag):
+        batch_size = len(tags)
+        result = [[] for _ in range(batch_size)]
+        for i, tag_seq in enumerate(tags):
+            _tag_seq = list(map(lambda x: idx2tag[x], tag_seq))
+            result[i] = bieos2span_express(_tag_seq)
+        return result
+
+
+
+
+

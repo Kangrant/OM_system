@@ -9,36 +9,42 @@ def get_opt():
     # set your trained models here
     model_state_dict_paths = {
         #'ote': 'state_dict/ote_' + dataset + '.pkl',
-        'ote': 'only_web/MyOTE/state_dict/ote_' + dataset  + '.pkl',
+        'ote_Bert': 'only_web/MyOTE/state_dict/ote_Bert_' + dataset + '.pkl',
+        'ote_LSTM': 'only_web/MyOTE/state_dict/ote_LSTM_' + dataset + '.pkl',
     }
     model_classes = {
-        'ote': OTE,
+        'ote_Bert': OTE,
+        'ote_LSTM': OTE,
     }
     input_colses = {
-        'ote': ['text_indices', 'text_mask'],
+        'ote_Bert': ['text_indices', 'text_mask'],
+        'ote_LSTM': ['text_indices', 'text_mask'],
     }
     target_colses = {
-        'ote': ['ap_indices', 'op_indices', 'triplet_indices', 'text_mask', 'sentece_polarity','target_indices'],
+        'ote_Bert': ['ap_indices', 'op_indices', 'triplet_indices', 'text_mask', 'sentece_polarity','target_indices'],
+        'ote_LSTM': ['ap_indices', 'op_indices', 'triplet_indices', 'text_mask', 'sentece_polarity','target_indices'],
     }
     data_dirs = {
-        'laptop14': 'datasets/14lap',
-        'rest14': 'datasets/14rest',
-        'rest15': 'datasets/15rest',
-        'rest16': 'datasets/16rest',
-        'hotel': 'hotelDatasets/hotel'
+        'hotel': 'only_web/MyOTE/hotelDatasets/hotel',
+
     }
+
 
     class Option(object):
         pass
 
     opt = Option()
+    opt.useBert = True
     opt.dataset = dataset
-    opt.model_name = 'ote'
+    if opt.useBert:
+        opt.model_name = 'ote_Bert'
+    else:
+        opt.model_name = 'ote_LSTM'
     opt.eval_cols = ['ap_spans', 'op_spans', 'triplets', 'sentece_polarity','targets']
     opt.model_class = model_classes[opt.model_name]
     opt.input_cols = input_colses[opt.model_name]
     opt.target_cols = target_colses[opt.model_name]
-    opt.state_dict_path = model_state_dict_paths[opt.model_name]
+    opt.state_dict_path = model_state_dict_paths
     opt.embed_dim = 300
     opt.hidden_dim = 300
     opt.polarities_dim = 4
@@ -61,7 +67,7 @@ def tripleModel(text,model,tokenizer):
     pred_out_all = []
     st_time = time.time()
     for batch_text in text:
-        pred_out = inf.evaluate(batch_text)
+        pred_out = inf.evaluate(batch_text,opt)
         pred_out_all.append(pred_out)
     en_time = time.time()
 
@@ -122,6 +128,14 @@ def tripleModel(text,model,tokenizer):
 
             info['triples'] = tri
             info['target'] = target_temp
+
+            express_single = pred_out[5][i]
+            exp = []
+            if express_single:
+                for express in express_single:
+                    beg,end ,type= express
+                    exp.append((text[j][i][beg:end+1],type))
+            info['express'] = exp
 
             triple_info.append(info)
 

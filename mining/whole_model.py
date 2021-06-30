@@ -2,7 +2,7 @@ from only_web.mining.triple_model  import tripleModel,get_opt
 from only_web.mining import Vocab
 from only_web.mining.unit import *
 from only_web.MyOTE.models.ote import OTE
-from only_web.MyOTE.data_utils import ABSADataReader
+from only_web.MyOTE.data_utils import ABSADataReader,build_tokenizer,build_embedding_matrix
 import time
 import os
 import json
@@ -38,24 +38,44 @@ class MyThread(threading.Thread):
 def load_model():
     start_time = time.time()
     opt = get_opt()
-    tokenizer = BertTokenizer.from_pretrained('only_web/MyOTE/bert-base-chinese')
 
-    absa_data_reader = ABSADataReader(data_dir=opt.data_dir)
-    idx2tag,idx2polarity,idx2target = absa_data_reader.reverse_tag_map, \
-                                      absa_data_reader.reverse_polarity_map, \
-                                      absa_data_reader.reverse_target_map
-    model = OTE(
+    #bert
+    tokenizer_bert = BertTokenizer.from_pretrained("only_web/MyOTE/bert-base-chinese")
+    embedding_matrix_bert = torch.tensor([])
+    #LSTM
+    tokenizer_LSTM = build_tokenizer(data_dir=opt.data_dir)
+    embedding_matrix_LSTM = build_embedding_matrix(opt.data_dir, tokenizer_LSTM.word2idx, opt.embed_dim, opt.dataset)
+
+    absa_data_reader = ABSADataReader(data_dir=opt.data_dir,opt=opt)
+    idx2tag,idx2polarity,idx2target,id2express =  absa_data_reader.reverse_tag_map, \
+                                                  absa_data_reader.reverse_polarity_map, \
+                                                  absa_data_reader.reverse_target_map,\
+                                                  absa_data_reader.reverse_express_map
+
+
+    model_bert = OTE(embedding_matrix=embedding_matrix_bert,
                 opt=opt,
                 idx2tag=idx2tag,
                 idx2polarity=idx2polarity,
-                idx2target = idx2target
+                idx2target = idx2target,
+                idx2express =id2express,
                 ).to(opt.device)
-    print('loading model {0} ...'.format('OTE'))
-    model.load_state_dict(torch.load(opt.state_dict_path, map_location=lambda storage, loc: storage))
-    end_time = time.time()
-    model.eval()
-    print("Load model time:%.3f" % (end_time-start_time))
-    return model,tokenizer
+
+    model_bert.load_state_dict(torch.load(opt.state_dict_path['ote_Bert'], map_location=lambda storage, loc: storage))
+    model_bert.eval()
+
+    model_LSTM = OTE(embedding_matrix=embedding_matrix_LSTM,
+                     opt=opt,
+                     idx2tag=idx2tag,
+                     idx2polarity=idx2polarity,
+                     idx2target = idx2target,
+                     idx2express =id2express,
+                     ).to(opt.device)
+
+    model_LSTM.load_state_dict(torch.load(opt.state_dict_path['ote_LSTM'], map_location=lambda storage, loc: storage))
+    model_LSTM.eval()
+
+    return model_bert,tokenizer_bert,model_LSTM,tokenizer_LSTM
 
 
 def decode(input_path):
@@ -66,9 +86,13 @@ def decode(input_path):
     # text = get_text(os.path.join(os.path.dirname(os.path.abspath('.')), input_path))
     text = get_text(input_path)
 
-    batch_text = get_batch(text=text,batch_size=5)
+    batch_text = get_batch(text=text,batch_size=100)
 
-    model,tokenizer = load_model()
+    model_bert,tokenizer_bert,model_LSTM,tokenizer_LSTM = load_model()
+
+    model = model_bert if len(text) <=1000 else model_LSTM
+    tokenizer = tokenizer_bert if len(text) <= 1000 else model_LSTM
+
     triple_info = tripleModel(batch_text,model,tokenizer)  #List<Dict>    # [{text: str}
                                                     # {aspect :[]},
                                                     # {opinion:[]},
@@ -77,12 +101,15 @@ def decode(input_path):
                                                     # {target:[(),()]}
 
     s_time = time.time()
-    text_all,aspect_all,opinion_all,triple_all,sen_polarity_all,target_all = get_all_info(triple_info)
+    text_all,aspect_all,opinion_all,triple_all,sen_polarity_all,target_all ,express_all = get_all_info(triple_info)
 
     aspect_and_opinion = get_a_and_o(aspect_all,opinion_all)
     ao_pair,ao_tri = get_RE_tri(triple_all)
 
     chart1,chart2,chart3 = get_target_info(target_all,SecondVocab,ThirdVocab)
+
+    express_info = get_express(express_all,opinion_all)
+
     e_time = time.time()
     print("Process Post time: %.3f" % (e_time-s_time))
     print('total cost time: %.3f' % (e_time-start_time))
@@ -92,7 +119,9 @@ def decode(input_path):
                          'text4': ao_tri,
                          'chart1': chart1,
                          'chart2': chart2,
-                         'chart3': chart3})
+                         'chart3': chart3,
+                         'chart4': express_info,
+                })
     return result
 
 
