@@ -41,7 +41,7 @@ def load_model():
 
     #bert
     tokenizer_bert = BertTokenizer.from_pretrained("only_web/MyOTE/bert-base-chinese")
-    embedding_matrix_bert = torch.tensor([])
+    embedding_matrix_bert = torch.tensor([0])
     #LSTM
     tokenizer_LSTM = build_tokenizer(data_dir=opt.data_dir)
     embedding_matrix_LSTM = build_embedding_matrix(opt.data_dir, tokenizer_LSTM.word2idx, opt.embed_dim, opt.dataset)
