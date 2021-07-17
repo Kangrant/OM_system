@@ -74,6 +74,7 @@ def load_model():
 
     model_LSTM.load_state_dict(torch.load(opt.state_dict_path['ote_LSTM'], map_location=lambda storage, loc: storage))
     model_LSTM.eval()
+    # model_LSTM,tokenizer_LSTM = [],[]
 
     return model_bert,tokenizer_bert,model_LSTM,tokenizer_LSTM
 
@@ -90,8 +91,9 @@ def decode(input_path):
 
     model_bert,tokenizer_bert,model_LSTM,tokenizer_LSTM = load_model()
 
-    model = model_bert if len(text) <=1000 else model_LSTM
-    tokenizer = tokenizer_bert if len(text) <= 1000 else model_LSTM
+
+    model = model_bert if len(text) <=10000 else model_LSTM
+    tokenizer = tokenizer_bert if len(text) <= 10000 else model_LSTM
 
     triple_info = tripleModel(batch_text,model,tokenizer)  #List<Dict>    # [{text: str}
                                                     # {aspect :[]},

@@ -66,6 +66,8 @@ def tripleModel(text,model,tokenizer):
 
     pred_out_all = []
     st_time = time.time()
+
+    opt.useBert = True if len(text) <=10000 else False
     for batch_text in text:
         pred_out = inf.evaluate(batch_text,opt)
         pred_out_all.append(pred_out)

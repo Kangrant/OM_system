@@ -6,7 +6,7 @@ import torch.nn as nn
 import numpy as np
 
 class DynamicRNN(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers=1, bias=True, batch_first=True, dropout=0,
+    def __init__(self, input_size, hidden_size, num_layers=2, bias=True, batch_first=True, dropout=0.5,
                  bidirectional=False, only_use_last_hidden_state=False, rnn_type='LSTM'):
         """
         RNN which can hold variable length sequence, use like TensorFlow's RNN(input, length...).
@@ -56,7 +56,7 @@ class DynamicRNN(nn.Module):
         """sort"""
         x_sort_idx = torch.argsort(-x_len) #将元素排序,返回对应的索引
         x_unsort_idx = torch.argsort(x_sort_idx).long()
-        x_len = x_len[x_sort_idx]
+        x_len = x_len[x_sort_idx].cpu()
         x = x[x_sort_idx.long()]#[batch,max_seq_len,embedding_size]
         """pack"""
         x_emb_p = torch.nn.utils.rnn.pack_padded_sequence(x, x_len, batch_first=self.batch_first)
