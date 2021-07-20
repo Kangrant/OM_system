@@ -60,6 +60,7 @@ def tripleModel(text,model,tokenizer):
 
     inf = Inferer(opt,model,tokenizer)
 
+    punc = [',','，','.','。','!','?']
     polarity_map = {0: 'N', 1: 'NEU', 2: 'NEG', 3: 'POS'}
 
     #text = ['朋友一行合肥打球,选择这家酒店,房间干净整洁,前台小妹妹很热情,退房时因天气热,还送了瓶水给我,感觉很好,下次有机会去,还会住这家酒店']
@@ -81,19 +82,19 @@ def tripleModel(text,model,tokenizer):
         for i in range(len(pred_out[0])):
             info = {}
             ap_span, op_span = [], []
-            #ap and op
-            ap_pred = pred_out[0][i]
-            op_pred = pred_out[1][i]
-            for ap in ap_pred:
-                ap_beg, ap_end = ap
-                aspect = text[j][i][ap_beg:ap_end + 1]
-                ap_span.append(aspect)
-            info['aspect'] = ap_span
-            for op in op_pred:
-                op_beg, op_end = op
-                opinion = text[j][i][op_beg:op_end + 1]
-                op_span.append(opinion)
-            info['opinion'] = op_span
+            # #ap and op
+            # ap_pred = pred_out[0][i]
+            # op_pred = pred_out[1][i]
+            # for ap in ap_pred:
+            #     ap_beg, ap_end = ap
+            #     aspect = text[j][i][ap_beg:ap_end + 1]
+            #     ap_span.append(aspect)
+            # info['aspect'] = ap_span
+            # for op in op_pred:
+            #     op_beg, op_end = op
+            #     opinion = text[j][i][op_beg:op_end + 1]
+            #     op_span.append(opinion)
+            # info['opinion'] = op_span
             # assert len(aspect_all) == len(opinion_all)
             info['text'] = text[j][i]
             #句子极性
@@ -116,6 +117,8 @@ def tripleModel(text,model,tokenizer):
 
             for triplet in triplets:
                 ap_beg, ap_end, op_beg, op_end, p = triplet
+                ap_span.append([ap_beg,ap_end])
+                op_span.append([op_beg,op_end])
                 ap = text[j][i][ap_beg:ap_end + 1]
                 op = text[j][i][op_beg:op_end + 1]
                 polarity = polarity_map[p]
@@ -130,14 +133,17 @@ def tripleModel(text,model,tokenizer):
 
             info['triples'] = tri
             info['target'] = target_temp
-
+            info['ap_span'] = ap_span
+            info['op_span'] = op_span
             express_single = pred_out[5][i]
             exp = []
             if express_single:
                 for express in express_single:
                     beg,end ,type= express
-                    exp.append((text[j][i][beg:end+1],type))
+                    # exp.append((text[j][i][beg:end+1],type))
+                    exp.append([(beg,end),type])
             info['express'] = exp
+
 
             triple_info.append(info)
 

@@ -15,22 +15,22 @@ def get_all_info(triple_info):
 
     for i, single_info in enumerate(triple_info):
         text = str(i + 1) + ' ' + single_info['text']
-        aspect = single_info['aspect']
-        opinion = single_info['opinion']
+        # aspect = single_info['aspect']
+        # opinion = single_info['opinion']
         triples = single_info['triples']
         sen_polarity = single_info['sen_polarity']
         target = single_info['target']
-        express = single_info['express']
+        # express = single_info['express']
 
         text_all.append(text)
-        aspect_all.append(aspect)
-        opinion_all.append(opinion)
+        # aspect_all.append(aspect)
+        # opinion_all.append(opinion)
         triple_all.append(triples)
         sen_polarity_all.append(sen_polarity)
         target_all.append(target)
-        express_all.append(express)
+        # express_all.append(express)
 
-    return text_all, aspect_all, opinion_all, triple_all, sen_polarity_all, target_all,express_all
+    return text_all, triple_all, sen_polarity_all, target_all
 
 
 def get_a_and_o(aspect_all, opinion_all):
@@ -99,7 +99,7 @@ def get_target_info(target_all, SecondVocab, ThirdVocab):
         third_name = ThirdVocab.w2i[third_name]
         if second_name not in second_list:
             second_list.append(second_name)
-        if (second_name, third_name) not in third_list:
+        if (second_name, third_name) not in third_list and polarity!='NEU':
             third_list.append((second_name, third_name))
         if polarity == 'POS':
             total_POS += 1
@@ -236,7 +236,8 @@ def get_express(express_all,opinion_all):
             if info:
                 express,type = info
                 _ = chart4.setdefault(type,[])
-                chart4[type].append((opinion_all[i],express))
+                # chart4[type].append((opinion_all[i],express))
+                chart4[type].append(express)
 
     return chart4
 

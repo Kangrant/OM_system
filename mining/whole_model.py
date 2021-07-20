@@ -103,26 +103,25 @@ def decode(input_path):
                                                     # {target:[(),()]}
 
     s_time = time.time()
-    text_all,aspect_all,opinion_all,triple_all,sen_polarity_all,target_all ,express_all = get_all_info(triple_info)
+    text_all,triple_all,sen_polarity_all,target_all  = get_all_info(triple_info)
 
-    aspect_and_opinion = get_a_and_o(aspect_all,opinion_all)
+    # aspect_and_opinion = get_a_and_o(aspect_all,opinion_all)
     ao_pair,ao_tri = get_RE_tri(triple_all)
 
     chart1,chart2,chart3 = get_target_info(target_all,SecondVocab,ThirdVocab)
 
-    express_info = get_express(express_all,opinion_all)
+    # express_info = get_express(express_all,opinion_all)
 
     e_time = time.time()
     print("Process Post time: %.3f" % (e_time-s_time))
     print('total cost time: %.3f' % (e_time-start_time))
-    result = ( {'text1': text_all,
-                         'text2': aspect_and_opinion,
-                         'text3': ao_pair,
-                         'text4': ao_tri,
-                         'chart1': chart1,
-                         'chart2': chart2,
-                         'chart3': chart3,
-                         'chart4': express_info,
+    result = ( { 'text1': text_all,
+                 'text2': triple_info, #每句话中的所有信息
+                 'text3': ao_tri, #三元组信息
+                 'chart1': chart1,
+                 'chart2': chart2,
+                 'chart3': chart3,
+
                 })
     return result
 
