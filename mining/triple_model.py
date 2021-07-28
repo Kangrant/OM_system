@@ -114,18 +114,21 @@ def tripleModel(text,model,tokenizer):
                     if tar_beg == tri_beg and tar_end == tri_end:
                         _target_info.append(target)
 
+            #将长串数字当做一个字符  len('101') = 1 而不是 3
+            text_split = tokenizer.tokenize(text[j][i])
 
             for triplet in triplets:
                 ap_beg, ap_end, op_beg, op_end, p = triplet
                 ap_span.append([ap_beg,ap_end])
                 op_span.append([op_beg,op_end])
-                ap = text[j][i][ap_beg:ap_end + 1]
-                op = text[j][i][op_beg:op_end + 1]
+                ap = ''.join(text_split[ap_beg:ap_end + 1])
+                op = ''.join(text_split[op_beg:op_end + 1])
+                # if not (is_punc(ap) or is_punc(op)):
                 polarity = polarity_map[p]
                 tri.append((ap,op,polarity))
                 for _target in _target_info:
                     a_beg,a_end ,third_name= _target
-                    aspect = text[j][i][a_beg:a_end + 1]
+                    aspect = ''.join(text_split[a_beg:a_end + 1])
                     second_name = third_name[0]
                     if(aspect == ap):
                         target_temp.append((ap,second_name,third_name,polarity,(ap,op,polarity)))
@@ -153,3 +156,10 @@ def tripleModel(text,model,tokenizer):
     print("triple_precess pred out time: %.3f" % (model_end_time-s_time))
     return triple_info
 
+def is_punc(lst):
+    #判断lst中是否有标点符号
+    punc = [',' ,'.','，','。','!','?']
+    for  ch in lst:
+        if ch in punc:
+            return True
+    return False
